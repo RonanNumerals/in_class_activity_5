@@ -1,3 +1,9 @@
+/*
+  Author: Ronan pelot
+  Assignment: In-Class Activity 5
+  Description: A digital pet app where users can interact with their pet by playing, feeding, sleeping, and running. The pet's happiness, hunger, and energy levels are displayed and updated based on user interactions and time. The game has win and loss conditions based on the pet's happiness and hunger levels.
+*/
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -7,13 +13,13 @@ void main() {
   ));
 }
 
-
 class DigitalPetApp extends StatefulWidget {
   @override
   _DigitalPetAppState createState() => _DigitalPetAppState();
 }
 
 class _DigitalPetAppState extends State<DigitalPetApp> {
+  // Pet attributes
   String petName = "";
   int happinessLevel = 50;
   int hungerLevel = 50;
@@ -29,6 +35,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   @override
   void initState() {
     super.initState();
+    // Start the hunger timer to increase hunger over time
     _hungerTimer = Timer.periodic(Duration(seconds: 30), (timer) {
       setState(() {
         _updateHunger();
@@ -43,6 +50,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     super.dispose();
   }
 
+  // Playing with the pet increases happiness but also increases hunger and reduces energy
   void _playWithPet() {
     setState(() {
       if (happinessLevel < 100) {
@@ -56,6 +64,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     });
   }
 
+  // Feeding the pet reduces hunger and can increase energy and happiness
   void _feedPet() {
     setState(() {
       if (hungerLevel > 0) {
@@ -74,6 +83,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     });
   }
 
+  // Sleeping increases energy and can increase happiness if the pet is not too hungry
   void _petSleep() {
     setState(() {
       if (happinessLevel > 0) {
@@ -92,6 +102,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     });
   }
 
+  // Running increases happiness but also increases hunger and reduces energy
   void _petRun() {
     setState(() {
       if (happinessLevel < 100) {
@@ -105,6 +116,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     });
   }
 
+  // Update happiness based on hunger level
   void _updateHappiness() {
     if (hungerLevel > 70) {
       happinessLevel -= 20;
@@ -116,6 +128,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     }
   }
 
+  // Update hunger level based on time and actions
   void _updateHunger() {
     setState(() {
       hungerLevel += 5;
@@ -129,6 +142,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     });
   }
 
+  // Update energy level based on actions
   void _updateEnergy() {
     setState(() {
       energyLevel -= 5;
@@ -142,6 +156,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     });
   }
 
+  // Determine the color of the pet image based on happiness level
   Color _moodColor(int happinessLevel) {
     if (happinessLevel > 70) {
       return Colors.green;
@@ -152,6 +167,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     }
   }
 
+  // Set the pet's name based on user input
   void _petName() {
     setState(() {
       petName = _textController.text;
@@ -159,7 +175,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   }
 
   void _checkGameState() {
-  // LOSS CONDITION
+  // Loss Condition: Hunger reaches 100 and happiness is 10 or below
     if (hungerLevel >= 100 && happinessLevel <= 10 && !_isGameOver) {
       _isGameOver = true;
       _hungerTimer?.cancel();
@@ -167,7 +183,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
       _showEndDialog("Game Over");
     }
 
-    // WIN CONDITION
+    // Win Condition: Happiness above 80 for 3 minutes
     if (happinessLevel > 80 && !_isWinner) {
       _startWinTimer();
     } else {
@@ -175,8 +191,9 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     }
   }
 
+  // Start a timer to track how long the pet has been happy
   void _startWinTimer() {
-  if (_winTimer != null) return;
+    if (_winTimer != null) return;
 
     _winTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       _highHappinessSeconds++;
@@ -190,12 +207,14 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     });
   }
 
+  // Stop the win timer if happiness drops below the threshold
   void _stopWinTimer() {
     _winTimer?.cancel();
     _winTimer = null;
     _highHappinessSeconds = 0;
   }
 
+  // Show a dialog at the end of the game with the final stats
   void _showEndDialog(String title) {
     showDialog(
       context: context,
@@ -206,7 +225,6 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -221,6 +239,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Text field for entering the pet's name
                 SizedBox(
                   width: 200.0,
                   height: 50.0,
@@ -241,9 +260,10 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
                   child: const Text('Enter'),
                 ),
               ]
-            ),   
+            ),
             Text('Name: $petName', style: TextStyle(fontSize: 20.0)),
             SizedBox(height: 16.0),
+            // Display the pet image with a color filter based on happiness level
             ColorFiltered(
               colorFilter: ColorFilter.mode(
                 _moodColor(happinessLevel),
@@ -251,8 +271,8 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
               ),
               child: Image.asset('assets/pet_image.png', width: 150, height: 150),
             ),
-
             SizedBox(height: 16.0),
+            // Display the energy level as a progress bar
             SizedBox(
               width: 250,
               child: LinearProgressIndicator(
@@ -262,19 +282,20 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
               ),
             ),
-            
             SizedBox(height: 16.0),
-
+            // Display the pet's mood based on happiness level
             if (happinessLevel > 70)
               Text('Happy! 😄', style: TextStyle(fontSize: 18.0, color: Colors.green)),
             if (happinessLevel >= 30 && happinessLevel <= 70)
               Text('Neutral 😐', style: TextStyle(fontSize: 18.0, color: Colors.yellow)),
             if (happinessLevel < 30)
               Text('Sad 😢', style: TextStyle(fontSize: 18.0, color: Colors.red)),
+            // Display the happiness and hunger levels
             Text('Happiness Level: $happinessLevel', style: TextStyle(fontSize: 20.0)),
             SizedBox(height: 16.0),
             Text('Hunger Level: $hungerLevel', style: TextStyle(fontSize: 20.0)),
             SizedBox(height: 32.0),
+            // Dropdown menu to select between sleeping and running actions
             DropdownButton<String>(
               value: _selectedAction,
               items: const [
@@ -306,6 +327,7 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
               child: Text("Do Action"),
             ),
             SizedBox(height: 20),
+            // Buttons to play with and feed the pet
             ElevatedButton(
               onPressed: () {
                 _playWithPet();
